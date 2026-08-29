@@ -1,0 +1,9 @@
+[
+  {
+    "match": ["com.example.worker", "/Applications/Example.app"],
+    "name": "Example 后台服务",
+    "summary": "为 Example 提供后台同步；禁用后自动同步会停止。",
+    "vendor": "Example",
+    "category": "效率工具"
+  }
+]
