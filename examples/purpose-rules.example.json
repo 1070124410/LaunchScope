@@ -1,9 +1,15 @@
-[
-  {
-    "match": ["com.example.worker", "/Applications/Example.app"],
-    "name": "Example 后台服务",
-    "summary": "为 Example 提供后台同步；禁用后自动同步会停止。",
-    "vendor": "Example",
-    "category": "效率工具"
-  }
-]
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "com.example.worker",
+      "labels": ["com.example.worker"],
+      "name": "Example 后台服务",
+      "summary": "为 Example 提供后台同步。",
+      "vendor": "Example",
+      "category": "效率工具",
+      "evidence": "Example 官方帮助文档与已安装 plist",
+      "disableImpact": "自动同步会停止，手动打开应用仍可使用。"
+    }
+  ]
+}

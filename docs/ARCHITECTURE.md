@@ -13,9 +13,10 @@ LaunchScope 把“读取事实”“解释事实”和“改变状态”分成�
 ## 关键边界
 
 - `BackgroundServiceRepository` 是系统实现和测试替身之间的边界。
-- `PurposeRule` 是识别能力的扩展边界；本地规则优先于内置规则。
+- `PurposeRule` 是识别能力的扩展边界；Rule Pack v1 提供版本、稳定 ID、精确选择器和证据字段，本地规则优先于内置规则。
 - `LaunchdManager` 是唯一允许改变 launchd 状态的模块。
 - `ReportExporter` 定义可公开诊断信息的最小集合。
+- `AgentContextExporter` 定义交给外部 AI 的隐私最小集合；它省略参数、运行时标识和环境变量。
 
 ## 操作语义
 
@@ -24,3 +25,5 @@ LaunchScope 把“读取事实”“解释事实”和“改变状态”分成�
 ## 后续扩展
 
 新的数据来源应先转换成 `LaunchItem`，不要把来源细节渗透到视图。新的识别器应保留置信度并提供可审计依据，不应直接用不可解释的模型输出覆盖系统事实。
+
+AI 扩展遵循“上下文导出 → 候选 Rule Pack → 离线校验 → 明确确认后安装 → 应用重新读取”的文件协议。AI 不在应用进程内运行，Rule Pack 也不能表达管理动作；实际状态变更仍只能经过 `LaunchdManager`。

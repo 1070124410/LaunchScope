@@ -36,6 +36,9 @@ make install
 - 临时停止、启动、禁用和重新启用用户级或系统级任务。
 - 操作后重新读取 `launchctl` 状态，避免把命令返回当作操作成功。
 - 用本地 JSON 扩展识别规则，无需重新编译。
+- 支持版本化 Rule Pack、规则校验状态，以及隐私受限的 AI 识别上下文。
+- 支持在应用内导入 Rule Pack，安装前展示新增、更新和未变化规则，并为原配置创建备份。
+- 提供项目级 `$launchscope` skill 和离线工具，供 AI 生成、校验与合并候选规则。
 - 导出适合提交 Issue 的 Markdown 清单；默认不导出命令、参数、日志或环境变量。
 
 默认不扫描 `/System/Library` 中的 Apple 核心服务。系统级操作会使用标准 macOS 管理员授权窗口；禁用不会删除应用、plist 或用户数据。
@@ -65,7 +68,9 @@ open "dist/LaunchScope.app"
 ~/Library/Application Support/LaunchScope/purpose-rules.json
 ```
 
-自定义规则优先于内置规则。完整字段和示例见 [自定义规则文档](docs/CUSTOM_RULES.md) 与 [示例文件](examples/purpose-rules.example.json)。修改后在应用中刷新即可生效。
+自定义规则优先于内置规则。完整字段和示例见 [自定义规则文档](docs/CUSTOM_RULES.md) 与 [示例文件](examples/purpose-rules.example.json)。AI 协作和写入边界见 [Agent Protocol](docs/AGENT_PROTOCOL.md)。修改后在应用中刷新即可生效。
+
+仓库内包含可自动发现的 `.agents/skills/launchscope`。应用不会调用 AI；它只复制经过隐私裁剪的识别请求，Rule Pack 仍需离线校验并由用户确认安装。
 
 ## 项目结构
 
@@ -77,6 +82,7 @@ Sources/BackgroundButler/
 ├── LaunchdManager.swift    启停和禁用操作
 ├── ServiceRepository.swift 扫描/管理的稳定接口
 ├── PurposeCatalog.swift    可解释的规则识别
+├── AgentContextExporter.swift 隐私受限的 AI 识别请求
 └── ReportExporter.swift    隐私受限的 Markdown 报告
 ```
 

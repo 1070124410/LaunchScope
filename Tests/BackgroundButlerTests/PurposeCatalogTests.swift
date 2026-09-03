@@ -44,4 +44,22 @@ final class PurposeCatalogTests: XCTestCase {
         XCTAssertEqual(info.category, "测试设施")
         XCTAssertEqual(info.confidence, .exact)
     }
+
+    func testExactLabelDoesNotMatchSimilarLabel() {
+        let catalog = PurposeCatalog(customRules: [
+            PurposeRule(
+                id: "com.example.worker",
+                labels: ["com.example.worker"],
+                name: "Example Worker",
+                summary: "Runs Example background work.",
+                vendor: "Example",
+                category: "Development",
+                evidence: "Example documentation",
+                disableImpact: "Background work stops."
+            )
+        ])
+
+        XCTAssertEqual(catalog.resolve(label: "com.example.worker", program: "", arguments: []).name, "Example Worker")
+        XCTAssertEqual(catalog.resolve(label: "com.example.worker.beta", program: "", arguments: []).confidence, .unknown)
+    }
 }

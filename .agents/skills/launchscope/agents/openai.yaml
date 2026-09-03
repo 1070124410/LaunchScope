@@ -1,0 +1,7 @@
+interface:
+  display_name: "LaunchScope Rules"
+  short_description: "Create and validate local background-item rules"
+  default_prompt: "Use $launchscope to identify this background item and produce a validated Rule Pack candidate."
+
+policy:
+  allow_implicit_invocation: true

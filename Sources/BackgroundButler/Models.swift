@@ -83,6 +83,29 @@ struct PurposeInfo: Hashable, Codable, Sendable {
     let vendor: String
     let category: String
     let confidence: PurposeConfidence
+    let ruleID: String?
+    let evidence: String?
+    let disableImpact: String?
+
+    init(
+        name: String,
+        summary: String,
+        vendor: String,
+        category: String,
+        confidence: PurposeConfidence,
+        ruleID: String? = nil,
+        evidence: String? = nil,
+        disableImpact: String? = nil
+    ) {
+        self.name = name
+        self.summary = summary
+        self.vendor = vendor
+        self.category = category
+        self.confidence = confidence
+        self.ruleID = ruleID
+        self.evidence = evidence
+        self.disableImpact = disableImpact
+    }
 }
 
 struct ProcessUsage: Hashable, Codable, Sendable {
