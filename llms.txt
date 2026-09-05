@@ -1,0 +1,13 @@
+# LaunchScope
+
+> A local macOS background-item inspection and management app with an auditable AI protocol.
+
+## Agent entry points
+
+- Protocol and safety boundary: docs/AGENT_PROTOCOL.md
+- Purpose Rule Pack v1 schema: docs/schema/purpose-rules-v1.schema.json
+- Repository skill: .agents/skills/launchscope/SKILL.md
+- Local MCP server: mcp/launchscope_mcp.py
+- MCP setup: docs/AI_INTEGRATION.md
+
+Recognition rules explain an item. They do not authorize rule installation or launchd management.

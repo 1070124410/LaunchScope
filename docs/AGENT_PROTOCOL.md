@@ -1,6 +1,12 @@
 # LaunchScope Agent Protocol
 
-LaunchScope 的 AI 集成是一个本地、可审计的文件协议，不是应用内模型调用。应用负责提供最小上下文和读取有效规则；AI 负责生成候选规则；校验工具负责在写入前拒绝不完整或过宽的配置。
+LaunchScope 的 AI 集成是一个本地、可审计的协议，不是应用内模型调用。Rule Pack 文件协议是唯一规则格式；内置 stdio MCP 是跨 AI 客户端的能力适配层。应用负责提供最小上下文和读取有效规则；AI 负责生成候选规则；校验工具负责在写入前拒绝不完整或过宽的配置。
+
+## MCP 工作流
+
+支持 MCP 的客户端应先调用 `launchscope_get_status`，再按需查询隐私裁剪后的后台项、近期变化和已安装规则。生成候选后依次调用 `launchscope_validate_rule_pack` 与 `launchscope_plan_rule_pack`。只有用户明确要求保存时，才调用 `launchscope_save_rule_pack_candidate`；该工具只写入 `Candidates` 目录，不安装规则。
+
+MCP 还暴露本协议、Rule Pack JSON Schema 和当前隐私快照为 resources，并提供 `identify-background-item` prompt。MCP server 不读取命令参数、原始程序路径、PID、资源指标或环境变量，不联网，也不直接读取 `launchctl`；它只消费 LaunchScope 已持久化的隐私快照。
 
 ## 协议对象
 
@@ -84,4 +90,4 @@ LaunchScope 自身也提供“导入 Rule Pack”入口。选择文件后必须�
 
 ## 权限边界
 
-生成、校验规则不会改变 launchd 状态。安装 Rule Pack 只改变 LaunchScope 的本地识别结果。启动、停止、启用和禁用仍必须在应用内单独确认，并由 `LaunchdManager` 执行和回读验证；识别规则不能表达或触发这些动作。
+生成、校验或保存候选规则不会改变 launchd 状态。安装 Rule Pack 只改变 LaunchScope 的本地识别结果。MCP 没有安装或管理工具；启动、停止、启用和禁用仍必须在应用内单独确认，并由 `LaunchdManager` 执行和回读验证；识别规则不能表达或触发这些动作。

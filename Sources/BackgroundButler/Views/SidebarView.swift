@@ -7,6 +7,7 @@ struct SidebarView: View {
         List(selection: $store.filter) {
             Section {
                 filterRow(.overview)
+                filterRow(.aiIntegration)
             }
 
             Section("状态") {
@@ -67,9 +68,11 @@ struct SidebarView: View {
         HStack {
             Label(filter.title, systemImage: filter.icon)
             Spacer()
-            Text("\(store.count(for: filter))")
-                .font(.caption.monospacedDigit())
-                .foregroundStyle(filter == .attention && store.count(for: filter) > 0 ? .orange : .secondary)
+            if filter != .aiIntegration {
+                Text("\(store.count(for: filter))")
+                    .font(.caption.monospacedDigit())
+                    .foregroundStyle(filter == .attention && store.count(for: filter) > 0 ? .orange : .secondary)
+            }
         }
         .tag(filter)
     }

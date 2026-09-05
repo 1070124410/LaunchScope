@@ -8,7 +8,14 @@ struct ContentView: View {
 
     var body: some View {
         Group {
-            if store.filter == .overview {
+            if store.filter == .aiIntegration {
+                NavigationSplitView {
+                    SidebarView()
+                        .navigationSplitViewColumnWidth(min: 210, ideal: 235, max: 285)
+                } detail: {
+                    AIIntegrationView()
+                }
+            } else if store.filter == .overview {
                 NavigationSplitView {
                     SidebarView()
                         .navigationSplitViewColumnWidth(min: 210, ideal: 235, max: 285)
@@ -35,7 +42,10 @@ struct ContentView: View {
                 }
             }
         }
-        .searchable(text: $store.searchText, placement: .toolbar, prompt: "搜索名称、厂商、类别或 Label")
+        .modifier(BackgroundItemSearchModifier(
+            text: $store.searchText,
+            enabled: store.filter != .aiIntegration
+        ))
         .toolbar { toolbarContent }
         .task { await store.reload() }
         .confirmationDialog(
@@ -81,21 +91,23 @@ struct ContentView: View {
     @ToolbarContentBuilder
     private var toolbarContent: some ToolbarContent {
         ToolbarItemGroup {
-            Button {
-                Task { await store.reload() }
-            } label: {
-                if store.isLoading { ProgressView().controlSize(.small) }
-                else { Label("刷新", systemImage: "arrow.clockwise") }
-            }
-            .disabled(store.isLoading)
+            if store.filter != .aiIntegration {
+                Button {
+                    Task { await store.reload() }
+                } label: {
+                    if store.isLoading { ProgressView().controlSize(.small) }
+                    else { Label("刷新", systemImage: "arrow.clockwise") }
+                }
+                .disabled(store.isLoading)
 
-            Button {
-                exportDocument = MarkdownDocument(text: store.reportMarkdown)
-                isExporting = true
-            } label: {
-                Label("导出本机报告", systemImage: "square.and.arrow.up")
+                Button {
+                    exportDocument = MarkdownDocument(text: store.reportMarkdown)
+                    isExporting = true
+                } label: {
+                    Label("导出本机报告", systemImage: "square.and.arrow.up")
+                }
+                .disabled(store.items.isEmpty)
             }
-            .disabled(store.items.isEmpty)
 
             Menu {
                 Button("自定义识别规则…", systemImage: "text.badge.plus") { presentedSheet = .rules }
@@ -116,6 +128,20 @@ struct ContentView: View {
         if item.domain == .system { return "这是整台 Mac 的后台项，系统会要求管理员授权。不会删除应用或数据。" }
         if action == .stop { return "临时停止后，主应用或下次登录仍可能重新启动它。长期关闭请使用“禁用”。" }
         return "该操作不会删除应用、配置文件或用户数据。"
+    }
+}
+
+private struct BackgroundItemSearchModifier: ViewModifier {
+    @Binding var text: String
+    let enabled: Bool
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if enabled {
+            content.searchable(text: $text, placement: .toolbar, prompt: "搜索名称、厂商、类别或 Label")
+        } else {
+            content
+        }
     }
 }
 

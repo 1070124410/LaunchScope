@@ -1,11 +1,13 @@
 ---
 name: launchscope
-description: Inspect LaunchScope recognition requests and create, validate, or install local Purpose Rule Packs. Use for unknown macOS background items shown by LaunchScope or edits to purpose-rules.json; do not use for generic launchd development.
+description: Inspect LaunchScope background-item snapshots and recognition requests, then create, validate, preview, or save local Purpose Rule Packs through the LaunchScope MCP or offline tool. Use for unknown macOS background items shown by LaunchScope or edits to purpose-rules.json; do not use for generic launchd development.
 ---
 
 # LaunchScope rules
 
 Treat identification and background-service management as separate actions. A recognition rule explains an item; it never authorizes starting, stopping, enabling, or disabling it.
+
+When the launchscope MCP server is available, use its privacy-limited read tools and Rule Pack validation/preview tools instead of reading Application Support files directly. Saving a candidate is a separate user-authorized write; installation still happens in the LaunchScope app.
 
 ## Rule workflow
 

@@ -2,7 +2,7 @@ import SwiftUI
 
 @main
 struct BackgroundButlerApp: App {
-    @StateObject private var store = AppStore()
+    @StateObject private var store = AppStore(historyStore: SnapshotHistoryStore())
 
     var body: some Scene {
         WindowGroup {

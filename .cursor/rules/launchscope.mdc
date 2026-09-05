@@ -1,0 +1,8 @@
+---
+description: Apply LaunchScope evidence and write boundaries when inspecting background items or Purpose Rule Packs.
+alwaysApply: false
+---
+
+Read docs/AGENT_PROTOCOL.md before identifying a background item or creating, validating, previewing, or saving a Purpose Rule Pack.
+
+Use the launchscope MCP server when available. Recognition rules explain purpose; they never authorize starting, stopping, enabling, or disabling launchd items. Save only reviewed candidates, and route rule installation and all launchd management through the LaunchScope app.

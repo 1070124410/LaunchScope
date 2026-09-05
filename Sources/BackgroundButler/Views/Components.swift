@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct SurfaceCard<Content: View>: View {
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     let title: String
     let icon: String
     @ViewBuilder let content: Content
@@ -18,8 +19,29 @@ struct SurfaceCard<Content: View>: View {
         }
         .padding(17)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.background, in: RoundedRectangle(cornerRadius: 15, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 15, style: .continuous).stroke(.separator.opacity(0.42)))
+        .background {
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(cardBackground)
+        }
+        .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(.separator.opacity(0.34)))
+        .shadow(color: .black.opacity(reduceTransparency ? 0 : 0.035), radius: 12, y: 5)
+    }
+
+    private var cardBackground: AnyShapeStyle {
+        reduceTransparency
+            ? AnyShapeStyle(Color(nsColor: .controlBackgroundColor))
+            : AnyShapeStyle(.regularMaterial)
+    }
+}
+
+struct PressableCardButtonStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed && !reduceMotion ? 0.985 : 1)
+            .opacity(configuration.isPressed ? 0.86 : 1)
+            .animation(reduceMotion ? nil : .spring(response: 0.24, dampingFraction: 0.82), value: configuration.isPressed)
     }
 }
 

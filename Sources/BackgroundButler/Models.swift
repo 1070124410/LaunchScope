@@ -166,6 +166,7 @@ struct LaunchItem: Identifiable, Hashable, Codable, Sendable {
 
 enum SidebarFilter: String, CaseIterable, Identifiable {
     case overview
+    case aiIntegration
     case all
     case running
     case disabled
@@ -178,6 +179,7 @@ enum SidebarFilter: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .overview: "总览"
+        case .aiIntegration: "AI 助手"
         case .all: "全部后台项"
         case .running: "正在运行"
         case .disabled: "已禁用"
@@ -190,6 +192,7 @@ enum SidebarFilter: String, CaseIterable, Identifiable {
     var icon: String {
         switch self {
         case .overview: "rectangle.3.group"
+        case .aiIntegration: "cpu"
         case .all: "square.stack.3d.up"
         case .running: "play.circle"
         case .disabled: "nosign"
