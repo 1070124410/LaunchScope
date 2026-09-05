@@ -68,6 +68,9 @@ struct ServiceDetailView: View {
             DetailLine(title: "类别", value: item.purpose.category)
             DetailLine(title: "影响范围", value: item.domain.title)
             DetailLine(title: "识别依据", value: item.purpose.confidence.title)
+            if let ruleID = item.purpose.ruleID { DetailLine(title: "规则 ID", value: ruleID) }
+            if let evidence = item.purpose.evidence { DetailLine(title: "核验来源", value: evidence) }
+            if let impact = item.purpose.disableImpact { DetailLine(title: "禁用影响", value: impact) }
         }
     }
 
@@ -118,9 +121,15 @@ struct ServiceDetailView: View {
             Image(systemName: "text.badge.plus").foregroundStyle(.blue)
             VStack(alignment: .leading, spacing: 3) {
                 Text("可以补充本地识别规则").fontWeight(.semibold)
-                Text("规则保存在 Application Support，不需要修改或重新编译应用。")
+                Text("复制隐私受限的上下文，让 AI 按 Rule Pack v1 生成候选规则；写入前仍需校验和人工确认。")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                Button("复制给 AI 识别", systemImage: "sparkles") {
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString(AgentContextExporter.recognitionRequest(for: item), forType: .string)
+                }
+                .buttonStyle(.borderless)
+                .padding(.top, 4)
             }
         }
         .padding(14)

@@ -18,16 +18,24 @@ final class AppStore: ObservableObject {
     @Published var pendingAction: ManagementAction?
     @Published var pendingItem: LaunchItem?
     @Published var lastUpdated: Date?
+    @Published var snapshotHistory: SnapshotHistory = .empty
+    @Published var historyError: String?
     private let repository: any BackgroundServiceRepository
+    private let historyStore: SnapshotHistoryStore?
 
-    init(repository: any BackgroundServiceRepository = SystemBackgroundServiceRepository()) {
+    init(
+        repository: any BackgroundServiceRepository = SystemBackgroundServiceRepository(),
+        historyStore: SnapshotHistoryStore? = nil
+    ) {
         self.repository = repository
+        self.historyStore = historyStore
     }
 
     var filteredItems: [LaunchItem] {
         let filtered = items.filter { item in
             let matchesFilter: Bool = switch filter {
             case .overview: true
+            case .aiIntegration: true
             case .all: true
             case .running: item.status == .running
             case .disabled: item.status == .disabled
@@ -52,6 +60,7 @@ final class AppStore: ObservableObject {
     func count(for filter: SidebarFilter) -> Int {
         switch filter {
         case .overview: items.count
+        case .aiIntegration: 0
         case .all: items.count
         case .running: items.count { $0.status == .running }
         case .disabled: items.count { $0.status == .disabled }
@@ -85,8 +94,16 @@ final class AppStore: ObservableObject {
         let result = await repository.snapshot()
         items = result.items
         lastUpdated = result.generatedAt
+        if let historyStore {
+            do {
+                snapshotHistory = try await historyStore.record(result)
+                historyError = nil
+            } catch {
+                historyError = "变化历史暂时无法保存：\(error.localizedDescription)"
+            }
+        }
         if selection == nil || !items.contains(where: { $0.id == selection }) {
-            selection = filter == .overview ? nil : (filteredItems.first?.id ?? items.first?.id)
+            selection = filter == .overview || filter == .aiIntegration ? nil : (filteredItems.first?.id ?? items.first?.id)
         }
         isLoading = false
     }
@@ -118,11 +135,17 @@ final class AppStore: ObservableObject {
 
     func selectFilter(_ newFilter: SidebarFilter) {
         filter = newFilter
-        if newFilter == .overview {
+        if newFilter == .overview || newFilter == .aiIntegration {
             selection = nil
         } else if selection == nil || !filteredItems.contains(where: { $0.id == selection }) {
             selection = filteredItems.first?.id
         }
+    }
+
+    func open(_ change: SnapshotChange) {
+        guard items.contains(where: { $0.id == change.itemID }) else { return }
+        filter = .all
+        selection = change.itemID
     }
 
     private func sortPredicate(_ lhs: LaunchItem, _ rhs: LaunchItem) -> Bool {

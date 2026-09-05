@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://launchscope.local/schema/purpose-rules-v1.schema.json",
+  "title": "LaunchScope Purpose Rule Pack v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "rules"],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/rule"
+      }
+    }
+  },
+  "$defs": {
+    "nonEmptyStrings": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "summary", "vendor", "category"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "labels": {
+          "$ref": "#/$defs/nonEmptyStrings",
+          "description": "Exact, case-insensitive launchd Label alternatives. Preferred selector."
+        },
+        "programPrefixes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^/"
+          },
+          "description": "Absolute executable path prefixes, matched case-insensitively."
+        },
+        "match": {
+          "$ref": "#/$defs/nonEmptyStrings",
+          "description": "Legacy broad substring alternatives across Label, program, and arguments."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "vendor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "category": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidence": {
+          "type": "string",
+          "minLength": 1
+        },
+        "disableImpact": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "anyOf": [
+        { "required": ["labels"] },
+        { "required": ["programPrefixes"] },
+        { "required": ["match"] }
+      ]
+    }
+  }
+}

@@ -1,14 +1,94 @@
 import Foundation
 
 struct PurposeRule: Codable, Hashable, Sendable {
+    let id: String?
+    let labels: [String]
+    let programPrefixes: [String]
     let match: [String]
     let name: String
     let summary: String
     let vendor: String
     let category: String
+    let evidence: String?
+    let disableImpact: String?
+
+    init(
+        id: String? = nil,
+        labels: [String] = [],
+        programPrefixes: [String] = [],
+        match: [String] = [],
+        name: String,
+        summary: String,
+        vendor: String,
+        category: String,
+        evidence: String? = nil,
+        disableImpact: String? = nil
+    ) {
+        self.id = id
+        self.labels = labels
+        self.programPrefixes = programPrefixes
+        self.match = match
+        self.name = name
+        self.summary = summary
+        self.vendor = vendor
+        self.category = category
+        self.evidence = evidence
+        self.disableImpact = disableImpact
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id, labels, programPrefixes, match, name, summary, vendor, category, evidence, disableImpact
+    }
+
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        id = try values.decodeIfPresent(String.self, forKey: .id)
+        labels = try values.decodeIfPresent([String].self, forKey: .labels) ?? []
+        programPrefixes = try values.decodeIfPresent([String].self, forKey: .programPrefixes) ?? []
+        match = try values.decodeIfPresent([String].self, forKey: .match) ?? []
+        name = try values.decode(String.self, forKey: .name)
+        summary = try values.decode(String.self, forKey: .summary)
+        vendor = try values.decode(String.self, forKey: .vendor)
+        category = try values.decode(String.self, forKey: .category)
+        evidence = try values.decodeIfPresent(String.self, forKey: .evidence)
+        disableImpact = try values.decodeIfPresent(String.self, forKey: .disableImpact)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var values = encoder.container(keyedBy: CodingKeys.self)
+        try values.encodeIfPresent(id, forKey: .id)
+        if !labels.isEmpty { try values.encode(labels, forKey: .labels) }
+        if !programPrefixes.isEmpty { try values.encode(programPrefixes, forKey: .programPrefixes) }
+        if !match.isEmpty { try values.encode(match, forKey: .match) }
+        try values.encode(name, forKey: .name)
+        try values.encode(summary, forKey: .summary)
+        try values.encode(vendor, forKey: .vendor)
+        try values.encode(category, forKey: .category)
+        try values.encodeIfPresent(evidence, forKey: .evidence)
+        try values.encodeIfPresent(disableImpact, forKey: .disableImpact)
+    }
 
     var info: PurposeInfo {
-        PurposeInfo(name: name, summary: summary, vendor: vendor, category: category, confidence: .exact)
+        PurposeInfo(
+            name: name,
+            summary: summary,
+            vendor: vendor,
+            category: category,
+            confidence: .exact,
+            ruleID: id,
+            evidence: evidence,
+            disableImpact: disableImpact
+        )
+    }
+
+    func matches(label: String, program: String, arguments: [String]) -> Bool {
+        let normalizedLabel = label.lowercased()
+        let normalizedProgram = program.lowercased()
+        let haystack = ([label, program] + arguments).joined(separator: " ").lowercased()
+
+        return labels.contains { $0.lowercased() == normalizedLabel }
+            || programPrefixes.contains { normalizedProgram.hasPrefix($0.lowercased()) }
+            || match.contains { haystack.contains($0.lowercased()) }
     }
 }
 
@@ -52,7 +132,7 @@ struct PurposeCatalog: Sendable {
 
     func resolve(label: String, program: String, arguments: [String]) -> PurposeInfo {
         let haystack = ([label, program] + arguments).joined(separator: " ").lowercased()
-        if let custom = customRules.first(where: { rule in rule.match.contains(where: { haystack.contains($0.lowercased()) }) }) {
+        if let custom = customRules.first(where: { $0.matches(label: label, program: program, arguments: arguments) }) {
             return custom.info
         }
         if let match = Self.rules.first(where: { rule in rule.needles.contains(where: haystack.contains) }) {

@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "launchscope": {
+      "command": "./scripts/launchscope-mcp",
+      "args": [],
+      "env": {}
+    }
+  }
+}
